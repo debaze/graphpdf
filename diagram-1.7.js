@@ -16,6 +16,7 @@ function Diagram(options) {
 
 	this.data = options.data;
 	this.keys = Object.keys(this.data);
+	this.values = Object.values(this.data);
 	this.diagram = options.diagram;
 	this.legend = options.legend;
 	this.canvas = canvas;
@@ -391,7 +392,7 @@ const Utils = {
  * @param	{function}	callback	The modifier called for each item of the array
  * @returns	{array}
  */
-Array.prototype.map = function(callback) {
+ Array.prototype.map = function(callback) {
 	const length = this.length, mapped = [];
 
 	for (var i = 0; i < length; i++) {
