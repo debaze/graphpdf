@@ -3,7 +3,7 @@ function Diagram(options) {
 		canvas = document.createElement("canvas"),
 		ctx = canvas.getContext("2d");
 
-	canvas.width = options.width;
+	canvas.width = 880; // PDF inner-width
 	canvas.height = options.height;
 	canvas.style.marginTop = options.margin.top + "px";
 	canvas.style.marginBottom = options.margin.bottom + "px";
@@ -12,15 +12,24 @@ function Diagram(options) {
 	ctx.lineWidth = .5;
 	ctx.fillStyle = "#9e9e9e";
 	ctx.strokeStyle = ctx.fillStyle;
-	ctx.font = "14px system-ui";
+	ctx.font = "14px sans-serif";
 
 	this.data = options.data;
 	this.keys = Object.keys(this.data);
-	this.values = Object.values(this.data);
 	this.diagram = options.diagram;
 	this.legend = options.legend;
+	this.colorList = options.colors.concat(COLORS.shuffle());
+	this.colors = [];
 	this.canvas = canvas;
 	this.ctx = ctx;
+	this.colorIndex = 0;
+	this.getNextColor = function() {
+		const color = this.colorList[this.colorIndex++];
+
+		this.colors.push(color);
+
+		return color;
+	};
 
 	// Append the canvas to the body
 	document.body.appendChild(canvas);
@@ -36,9 +45,8 @@ function PieChart() {
 		diagram = this.diagram,
 		legend = this.legend,
 		O = diagram.origin,
-		rad = diagram.rad,
-		colors = {};
-	var i, A = 0, a, color;
+		rad = diagram.rad;
+	var i, A = 0, a;
 
 	ctx.strokeStyle = "rgba(1, 1, 1, 0.5)";
 
@@ -50,13 +58,7 @@ function PieChart() {
 			a = data[i] * 360 * Math.PI / 180;
 			A += a;
 
-			color = "rgb(" + [
-				Math.floor(Math.random() * 255),
-				Math.floor(Math.random() * 255),
-				Math.floor(Math.random() * 255),
-			] + ")";
-			colors[i] = color;
-			ctx.fillStyle = color;
+			ctx.fillStyle = this.getNextColor();
 
 			ctx.beginPath();
 			ctx.arc(O.x, O.y, rad, 0, A);
@@ -66,7 +68,7 @@ function PieChart() {
 	}
 
 	// Optional legend
-	legend.visible && Utils.drawLegend(ctx, legend, keys, colors, data);
+	legend.visible && Utils.drawLegend(ctx, legend, keys, this.colors, data);
 };
 
 function BarChart() {
@@ -95,14 +97,14 @@ function BarChart() {
 
 	// Diagram fill
 	{
-		ctx.font = "16px system-ui";
+		ctx.font = "16px sans-serif";
 		ctx.textBaseline = "middle";
 		y = O.y + spacing / 2;
 
 		for (i in data) {
 			itemWidth = data[i] / max * diagram.width;
 			
-			ctx.fillStyle = Utils.getRandomColor();
+			ctx.fillStyle = this.getNextColor();
 			ctx.fillRect(O.x, y, itemWidth, itemHeight);
 			
 			ctx.fillStyle = "#000";
@@ -131,45 +133,46 @@ function BarChartMultiple() {
 		entries = Object.keys(Object.values(data)[0]),
 		entryLength = entries.length,
 		entryHeight = itemHeight / entryLength,
-		max = Utils.getNearest10(data),
-		colors = {};
-	var i, j, y, itemWidth;
+		max = Utils.getNearest10(data);
+	var i, j, k, y, itemWidth;
 
 	Utils.drawSemiGrid(ctx, diagram, length + 1, 6, max);
 
 	// Generate the colors
-	for (i in entries) colors[entries[i]] = Utils.getRandomColor();
+	for (i in entries) this.getNextColor();
 
 	// Diagram fill
 	{
 		y = O.y + spacing / 2;
 
 		ctx.fillStyle = "#000";
-		ctx.font = "16px system-ui";
+		ctx.font = "16px sans-serif";
 		ctx.textAlign = "right";
 		ctx.textBaseline = "middle";
 
 		for (i in data) {
 			ctx.fillText(i, O.x - 15, y + itemHeight / 2 + 2);
 
+			k = 0;
 			for (j in data[i]) {
 				itemWidth = data[i][j] / max * diagram.width;
 
 				// Draw the line
-				ctx.fillStyle = colors[j];
+				ctx.fillStyle = this.colors[k];
 				ctx.fillRect(O.x, y, itemWidth, entryHeight);
 
 				ctx.fillStyle = "#000";
 
 				// Value indicator
 				if (data[i][j]) {
-					ctx.font = "14px system-ui";
+					ctx.font = "14px sans-serif";
 					ctx.fillText(data[i][j], O.x + itemWidth - 3, y + entryHeight / 2 + 2);
 
 					// Reset properties for the next text
-					ctx.font = "16px system-ui";
+					ctx.font = "16px sans-serif";
 				}
 
+				k++;
 				y += entryHeight;
 			}
 
@@ -178,7 +181,7 @@ function BarChartMultiple() {
 	}
 
 	// Optional legend
-	legend.visible && Utils.drawLegend(ctx, legend, entries, colors);
+	legend.visible && Utils.drawLegend(ctx, legend, entries, this.colors);
 }
 
 function LineChart() {
@@ -193,11 +196,10 @@ function LineChart() {
 		O = diagram.origin,
 		max = Utils.getNearest10(data),
 		lines = {},
-		colors = {},
 		grid = Utils.drawGrid(ctx, diagram, max, keys),
 		iw = grid.iw,
 		ih = grid.ih;
-	var i, j, x, y, color;
+	var i, j, x, y;
 
 	// Get the line data
 	{
@@ -217,9 +219,7 @@ function LineChart() {
 			x = O.x;
 			y = O.y + (max - lines[i][0]) * ih;
 
-			color = Utils.getRandomColor();
-			colors[i] = color;
-			ctx.strokeStyle = color;
+			ctx.strokeStyle = this.getNextColor();
 
 			ctx.beginPath();
 			ctx.moveTo(x, y);
@@ -234,8 +234,30 @@ function LineChart() {
 	}
 
 	// Optional legend
-	legend.visible && Utils.drawLegend(ctx, legend, Object.keys(lines), colors);
+	legend.visible && Utils.drawLegend(ctx, legend, Object.keys(lines), this.colors);
 }
+
+// Global csolor list
+const COLORS = [
+	"#2979ff",
+	"#ff8a65",
+	"#ffd600",
+	"#8e24aa",
+	"#4caf50",
+	"#e64a19",
+	"#009688",
+	"#1de9b6",
+	"#42a5f5",
+	"#ef9a9a",
+	"#6d4c41",
+	"#ffa000",
+	"#f06292",
+	"#c5cae9",
+	"#aed581",
+	"#9575cd",
+	"#f44336",
+	"#607d8b",
+];
 
 // Utility functions
 const Utils = {
@@ -247,29 +269,6 @@ const Utils = {
 		}
 	
 		return Math.ceil(Math.max.apply(null, values) / 10) * 10;
-	},
-	getRandomColor: function() {
-		return [
-			"#E57373",
-			"#F06292",
-			"#BA68C8",
-			"#9575CD",
-			"#7986CB",
-			"#64B5F6",
-			"#4FC3F7",
-			"#4DD0E1",
-			"#4DB6AC",
-			"#81C784",
-			"#AED581",
-			"#DCE775",
-			"#FFF176",
-			"#FFD54F",
-			"#FFB74D",
-			"#FF8A65",
-			"#A1887F",
-			"#E0E0E0",
-			"#90A4AE",
-		][Math.floor(Math.random() * 19)];
 	},
 	drawGrid: function(ctx, diagram, rows, cols) {
 		const
@@ -362,13 +361,13 @@ const Utils = {
 			i = 0,
 			entry;
 	
-		ctx.font = "16px system-ui";
+		ctx.font = "16px sans-serif";
 		ctx.textAlign = "left";
 		ctx.textBaseline = "middle";
 	
 		for (; i < entries.length; i++) {
-			// Draw a filled & stroked color rectangle
-			ctx.fillStyle = colors[entries[i]];
+			// Draw a filled color rectangle
+			ctx.fillStyle = colors[i];
 			ctx.fillRect(x, y, 50, 20);
 	
 			// Describe the entry
@@ -385,14 +384,30 @@ const Utils = {
 
 // Polyfills for JS 1.7
 /**
+ * Array.prototype.includes implementation.
+ * 
+ * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/includes}
+ * @param	{mixed}		needle	The item to search
+ * @returns	{boolean}
+ */
+Array.prototype.includes = function(needle) {
+	const length = this.length;
+
+	for (var i = 0; i < length; i++) {
+		if (this[i] === needle) return true;
+	}
+
+	return false;
+};
+
+/**
  * Array.prototype.map implementation.
  * 
- * @see {@link https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Array/map}
- * 
+ * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/map}
  * @param	{function}	callback	The modifier called for each item of the array
  * @returns	{array}
  */
- Array.prototype.map = function(callback) {
+Array.prototype.map = function(callback) {
 	const length = this.length, mapped = [];
 
 	for (var i = 0; i < length; i++) {
@@ -403,10 +418,25 @@ const Utils = {
 };
 
 /**
+ * Array.prototype.shuffle implementation.
+ * 
+ * @returns	{array}
+ */
+Array.prototype.shuffle = function() {
+	const shuffled = [];
+	var length = this.length;
+
+	while (length) {
+		shuffled.push(this.splice(Math.random() * length--, 1)[0]);
+	}
+
+	return shuffled;
+};
+
+/**
  * Object.values implementation.
  * 
- * @see {@link https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Global_Objects/Object/values}
- * 
+ * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/values}
  * @param	{object}	object	The object to extract values from
  * @returns	{array}
  */
