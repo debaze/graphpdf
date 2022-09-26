@@ -3,414 +3,470 @@ function Diagram(options) {
 		canvas = document.createElement("canvas"),
 		ctx = canvas.getContext("2d");
 
-	canvas.width = 880; // PDF inner-width
-	canvas.height = options.height;
-	canvas.style.marginTop = options.margin.top + "px";
-	canvas.style.marginBottom = options.margin.bottom + "px";
+	canvas.width				= PDF_WIDTH;
+	canvas.style.marginTop		= options.margin.top + "px";
+	canvas.style.marginBottom	= options.margin.bottom + "px";
 
 	// Default context settings
-	ctx.lineWidth = .5;
-	ctx.fillStyle = "#9e9e9e";
-	ctx.strokeStyle = ctx.fillStyle;
-	ctx.font = "14px sans-serif";
+	ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
+	ctx.lineWidth	= .5;
+	ctx.font		= "lighter 14px sans-serif";
+	ctx.translate(25, 25);
 
-	this.data = options.data;
-	this.keys = Object.keys(this.data);
-	this.diagram = options.diagram;
-	this.legend = options.legend;
-	this.colorList = options.colors.concat(COLORS.shuffle());
-	this.colors = [];
-	this.canvas = canvas;
-	this.ctx = ctx;
-	this.colorIndex = 0;
-	this.getNextColor = function() {
-		const color = this.colorList[this.colorIndex++];
+	this.data		= options.data;
+	this.entries	= Object.keys(this.data);
+	this.diagram	= options.diagram;
+	this.legend		= options.legend;
+	this.colors		= options.colors.concat(COLORS);
+	this.canvas		= canvas;
+	this.ctx		= ctx;
 
-		this.colors.push(color);
-
-		return color;
-	};
-
-	// Append the canvas to the body
-	document.body.appendChild(canvas);
+	// Append the canvas to the last element
+	document.body.lastElementChild.appendChild(canvas);
 }
 
 function PieChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx = this.ctx,
-		data = this.data,
-		keys = this.keys,
-		diagram = this.diagram,
-		legend = this.legend,
-		O = diagram.origin,
-		rad = diagram.rad;
-	var i, A = 0, a;
+		ctx		= this.ctx,
+		data	= this.data,
+		rad		= this.diagram.rad;
+	var i, j, A;
+	j = A = 0;
 
-	ctx.strokeStyle = "rgba(1, 1, 1, 0.5)";
+	this.canvas.height = (BORDER_OFFSET + rad) * 2;
+
+	ctx.translate(this.diagram.x, 0);
 
 	// Diagram fill
 	{
 		ctx.globalCompositeOperation = "destination-over";
+		ctx.translate(rad, rad);
 
 		for (i in data) {
-			a = data[i] * 360 * Math.PI / 180;
-			A += a;
+			if (data[i]) {
+				A += data[i] * 360 * Math.PI / 180;
 
-			ctx.fillStyle = this.getNextColor();
+				ctx.fillStyle = this.colors[j];
+				ctx.beginPath();
+				ctx.arc(0, 0, rad, 0, A);
+				ctx.lineTo(0, 0);
+				ctx.fill();
+			}
 
-			ctx.beginPath();
-			ctx.arc(O.x, O.y, rad, 0, A);
-			ctx.lineTo(O.x, O.y);
-			ctx.fill();
+			j++;
 		}
+
+		ctx.globalCompositeOperation = "source-over";
+		ctx.translate(-rad, -rad);
 	}
 
 	// Optional legend
-	legend.visible && Utils.drawLegend(ctx, legend, keys, this.colors, data);
+	this.legend.visible && Utils.drawLegend(ctx, this.legend, this.entries, this.colors, data);
 };
 
 function BarChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx = this.ctx,
-		data = this.data,
-		keys = this.keys,
-		values = [],
-		length = keys.length,
-		diagram = this.diagram,
-		O = diagram.origin,
-		spacing = diagram.spacing,
-		itemHeight = (diagram.height - (spacing * length)) / length;
-	var i, y, itemWidth, max;
+		ctx		= this.ctx,
+		data	= this.data,
+		entries	= this.entries,
+		diagram	= this.diagram,
+		grid	= diagram.grid,
+		max		= Utils.getNearest10(data);
+	var i = 0, j, k, y = 0, dw, dh, lh = 20, entry = Object.values(data)[0];
 
-	// Get the max value, rounded up to the nearest 10
-	{
-		for (i in data) values.push(data[i]);
+	if (typeof entry === "object") {
+		if (entry.constructor.name !== "Array") entry = Object.keys(entry);
+	} else entry = [entry];
 
-		max = Math.ceil(Math.max.apply(null, values) / 10) * 10;
-	}
+	grid.rows === "auto" && (grid.rows = entries.length + 1);
+	grid.cols === "auto" && (grid.cols = AUTO_COLUMNS);
 
-	Utils.drawSemiGrid(ctx, diagram, length + 1, 6, max);
+	dw = PDF_WIDTH * (3 / 5);
+	dh = entries.length * (entry.length + 1) * lh;
 
-	// Diagram fill
-	{
-		ctx.font = "16px sans-serif";
-		ctx.textBaseline = "middle";
-		y = O.y + spacing / 2;
+	this.canvas.height = dh + BORDER_OFFSET * 2;
 
-		for (i in data) {
-			itemWidth = data[i] / max * diagram.width;
-			
-			ctx.fillStyle = this.getNextColor();
-			ctx.fillRect(O.x, y, itemWidth, itemHeight);
-			
-			ctx.fillStyle = "#000";
-			ctx.textAlign = "right";
-			ctx.fillText(i, O.x - 15, y + itemHeight / 2 + 2);
-			ctx.fillText(data[i], O.x + itemWidth - 5, y + itemHeight / 2 + 2);
-	
-			y += itemHeight + spacing;
-		}
-	}
-}
+	ctx.translate(diagram.x, 0);
 
-function BarChartMultiple() {
-	Diagram.call(this, arguments[0]);
+	diagram.width = dw;
+	diagram.height = dh;
 
-	const
-		ctx = this.ctx,
-		data = this.data,
-		keys = this.keys,
-		length = keys.length,
-		diagram = this.diagram,
-		legend = this.legend,
-		O = diagram.origin,
-		spacing = diagram.spacing,
-		itemHeight = (diagram.height - (spacing * length)) / length,
-		entries = Object.keys(Object.values(data)[0]),
-		entryLength = entries.length,
-		entryHeight = itemHeight / entryLength,
-		max = Utils.getNearest10(data);
-	var i, j, k, y, itemWidth;
-
-	Utils.drawSemiGrid(ctx, diagram, length + 1, 6, max);
-
-	// Generate the colors
-	for (i in entries) this.getNextColor();
+	Utils.drawGrid(ctx, diagram, max);
 
 	// Diagram fill
 	{
-		y = O.y + spacing / 2;
-
-		ctx.fillStyle = "#000";
-		ctx.font = "16px sans-serif";
+		ctx.font = "lighter 14px sans-serif";
 		ctx.textAlign = "right";
 		ctx.textBaseline = "middle";
 
+		k = 0;
+
 		for (i in data) {
-			ctx.fillText(i, O.x - 15, y + itemHeight / 2 + 2);
+			y += lh / 2;
 
-			k = 0;
-			for (j in data[i]) {
-				itemWidth = data[i][j] / max * diagram.width;
+			ctx.fillStyle = "#000";
+			ctx.fillText(i, -10, y + (lh * entry.length / 2) + TEXT_OFFSET_Y);
 
-				// Draw the line
+			if (typeof data[i] !== "object") {
 				ctx.fillStyle = this.colors[k];
-				ctx.fillRect(O.x, y, itemWidth, entryHeight);
+				ctx.fillRect(0, y, data[i] / max * dw, lh);
 
-				ctx.fillStyle = "#000";
-
-				// Value indicator
-				if (data[i][j]) {
-					ctx.font = "14px sans-serif";
-					ctx.fillText(data[i][j], O.x + itemWidth - 3, y + entryHeight / 2 + 2);
-
-					// Reset properties for the next text
-					ctx.font = "16px sans-serif";
+				if (diagram.indicators && data[i]) {
+					ctx.textAlign = "left";
+					ctx.fillText(data[i], data[i] / max * dw + 5, y + (lh / 2) + TEXT_OFFSET_Y);
+					ctx.textAlign = "right";
 				}
 
+				y += lh;
 				k++;
-				y += entryHeight;
+			} else {
+				k = 0;
+
+				for (j in data[i]) {
+					// Draw the line
+					ctx.fillStyle = this.colors[k];
+					ctx.fillRect(0, y, data[i][j] / max * dw, lh);
+
+					if (diagram.indicators && data[i][j]) {
+						ctx.textAlign = "left";
+						ctx.fillText(data[i][j], data[i][j] / max * dw + 5, y + (lh / 2) + TEXT_OFFSET_Y);
+						ctx.textAlign = "right";
+					}
+
+					k++;
+					y += lh;
+				}
 			}
 
-			y += spacing;
+			y += lh / 2;
 		}
 	}
 
 	// Optional legend
-	legend.visible && Utils.drawLegend(ctx, legend, entries, this.colors);
+	if (this.legend.visible) {
+		this.legend.origin = {
+			x: dw + 10,
+			y: 0,
+		};
+
+		Utils.drawLegend(ctx, this.legend, entry.length > 1 ? entry : entries, this.colors);
+	}
 }
 
 function LineChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx = this.ctx,
-		data = this.data,
-		keys = this.keys,
-		diagram = this.diagram,
-		legend = this.legend,
-		O = diagram.origin,
-		max = Utils.getNearest10(data),
-		lines = {},
-		grid = Utils.drawGrid(ctx, diagram, max, keys),
-		iw = grid.iw,
-		ih = grid.ih;
-	var i, j, x, y;
+		ctx		= this.ctx,
+		data	= this.data,
+		entries	= this.entries,
+		diagram	= this.diagram,
+		grid	= diagram.grid,
+		legend	= this.legend,
+		O		= [diagram.x, 25],
+		max		= Utils.getNearest10(data),
+		lines	= {};
+		var i, j, k, x, y, dw, dh, row;
+
+	grid.rows === "auto" && (grid.rows = AUTO_ROWS);
+	grid.cols === "auto" && (grid.cols = Object.values(data).map(function(entry) {
+		return Object.keys(entry).length;
+	}).sum() - 1);
+
+	dw = PDF_WIDTH * (3 / 5);
+	dh = 250;
+	diagram.width = dw;
+	diagram.height = dh;
+	this.canvas.height = dh + 50 + (entries.length === 1 ? 0 : 20);
+
+	ctx.translate(O[0], O[1]);
+
+	row = Utils.drawLCGrid(ctx, diagram, max, data);
 
 	// Get the line data
 	{
 		for (i in data) {
 			for (j in data[i]) {
-				lines[j] === undefined && (lines[j] = []);
-				lines[j].push(data[i][j]);
+				for (k in data[i][j]) {
+					lines[k] === undefined && (lines[k] = []);
+					lines[k].push(data[i][j][k]);
+				}
 			}
 		}
 	}
 
 	// Diagram fill
 	{
+		k = 0;
+
 		ctx.lineWidth = 2;
 
 		for (i in lines) {
-			x = O.x;
-			y = O.y + (max - lines[i][0]) * ih;
+			x = 0;
+			y = (1 - lines[i][0] / max) * dh;
 
-			ctx.strokeStyle = this.getNextColor();
+			ctx.strokeStyle = this.colors[k];
 
 			ctx.beginPath();
 			ctx.moveTo(x, y);
-			for (j = 1; j < lines[i].length; j++) {
-				x += iw;
-				y = O.y + (max - lines[i][j]) * ih;
+			if (lines[i].length === 1) ctx.lineTo(dw, y);
+			else for (j = 1; j < lines[i].length; j++) {
+				x += row;
+				y = (1 - lines[i][j] / max) * dh;
 
 				ctx.lineTo(x, y);
 			}
 			ctx.stroke();
+
+			k++;
 		}
 	}
 
 	// Optional legend
-	legend.visible && Utils.drawLegend(ctx, legend, Object.keys(lines), this.colors);
+	if (legend.visible) {
+		legend.origin = {
+			x: dw + 10,
+			y: 0,
+		};
+
+		Utils.drawLegend(ctx, legend, Object.keys(lines), this.colors);
+	}
 }
 
-// Global csolor list
-const COLORS = [
-	"#2979ff",
-	"#ff8a65",
-	"#ffd600",
-	"#8e24aa",
-	"#4caf50",
-	"#e64a19",
-	"#009688",
-	"#1de9b6",
-	"#42a5f5",
-	"#ef9a9a",
-	"#6d4c41",
-	"#ffa000",
-	"#f06292",
-	"#c5cae9",
-	"#aed581",
-	"#9575cd",
-	"#f44336",
-	"#607d8b",
-];
+// Global color list
+const
+	PDF_WIDTH		= 880,
+	AUTO_ROWS		= 6,
+	AUTO_COLUMNS	= 6,
+	BORDER_OFFSET	= 25,
+	TEXT_OFFSET_Y	= 2,
+	COLORS = [
+		"#2979ff",
+		"#ff8a65",
+		"#ffd600",
+		"#8e24aa",
+		"#4caf50",
+		"#e64a19",
+		"#009688",
+		"#1de9b6",
+		"#42a5f5",
+		"#ef9a9a",
+		"#6d4c41",
+		"#ffa000",
+		"#f06292",
+		"#c5cae9",
+		"#aed581",
+		"#9575cd",
+		"#f44336",
+		"#607d8b",
+	],
+	Utils = {
+		getNearest10: function(data) {
+			var values, jvalues, kvalues, result, i, j, k;
+			values = jvalues = kvalues = [];
+			i = j = k = 0;
 
-// Utility functions
-const Utils = {
-	getNearest10: function(data) {
-		var values = [];
+			for (i in data) {
+				if (typeof data[i] === "object") {
+					if (typeof Object.values(data[i])[0] === "object") {
+						for (j in data[i]) {
+							if (typeof data[i][j] === "object") {
+								for (k in data[i][j]) {
+									data[i][j][k] && kvalues.push(data[i][j][k]);
+								}
+
+								jvalues = jvalues.concat(kvalues);
+							} else jvalues = jvalues.concat([data[i][j]]);
+						}
+
+						values = values.concat(jvalues);
+					} else values = values.concat(Object.values(data[i]));
+				} else values = values.concat([data[i]]);
+			}
+
+			result = Math.ceil(Math.max.apply(null, values) / 10) * 10;
+
+			return result === 0 ? 10 : result;
+		},
+		drawGrid: function(ctx, diagram, max) {
+			const
+				dw		= diagram.width,
+				dh		= diagram.height,
+				grid	= diagram.grid,
+				rows	= grid.rows + 1,
+				cols	= grid.cols + 1,
+				row		= dw / (cols - 1),
+				col		= dh / (rows - 1),
+				step	= cols - 1;
+			var i;
+
+			ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
+			ctx.lineWidth		= .5;
+			ctx.font			= "lighter 12px sans-serif";
+			ctx.textAlign		= "center";
+			ctx.textBaseline	= "top";
+
+			// Rows
+			if (rows > 1) {
+				var y = 0;
+
+				ctx.beginPath();
+				for (i = 0; i < rows; i++, y += col) {
+					ctx.moveTo(0, y);
+					ctx.lineTo(dw, y);
+				}
+				ctx.stroke();
+			}
+
+			// Columns
+			if (cols > 1) {
+				var x = 0;
+
+				ctx.beginPath();
+				for (i = 0; i < cols; i++, x += row) {
+					ctx.moveTo(x, 0);
+					ctx.lineTo(x, dh);
+
+					ctx.fillText(i / step * max, x, dh + 5);
+				}
+				ctx.stroke();
+			}
+		},
+		drawLCGrid: function(ctx, diagram, max, data) {
+			const
+				dw			= diagram.width,
+				dh			= diagram.height,
+				grid		= diagram.grid,
+				truncate	= grid.truncate,
+				rows		= grid.rows,
+				cols		= grid.cols,
+				row			= dw / cols,
+				col			= dh / rows;
+			var i, j, text;
+
+			var values = Object.values(data);
+			var keys = Object.keys(data);
+
+			ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
+			ctx.lineWidth		= .5;
+			ctx.font			= "lighter 12px sans-serif";
+			ctx.textAlign		= "right";
+			ctx.textBaseline	= "middle";
+
+			// Rows
+			if (rows) {
+				var y = col * rows;
+
+				ctx.beginPath();
+				for (i = 0; i <= rows; i++, y -= col) {
+					ctx.moveTo(0, y);
+					ctx.lineTo(dw, y);
+
+					i && ctx.fillText(i / rows * max, -5, y + 2);
+				}
+				ctx.stroke();
+			}
+
+			ctx.textAlign		= "center";
+			ctx.textBaseline	= "top";
+
+			// Columns
+			if (keys.length === 1) {
+				// Month scope
+				var months = Object.keys(values[0]);
+
+				if (months.length === 1) {
+					ctx.beginPath();
+					ctx.moveTo(0, 0);
+					ctx.lineTo(0, dh);
+					ctx.moveTo(dw, 0);
+					ctx.lineTo(dw, dh);
+					ctx.stroke();
 	
-		for (i in data) {
-			values = values.concat(Object.values(data[i]));
-		}
+					ctx.fillText(months[0], dw / 2, dh + 5);
+				} else if (cols) {
+					var x = 0;
 	
-		return Math.ceil(Math.max.apply(null, values) / 10) * 10;
-	},
-	drawGrid: function(ctx, diagram, rows, cols) {
-		const
-			O = diagram.origin,
-			w = diagram.width,
-			h = diagram.height,
-			r = typeof rows === "number" ? rows : rows.length - 1,
-			c = typeof cols === "number" ? cols : cols.length - 1,
-			iw = w / c,
-			ih = h / r;
-		var i = 0,
-			x = O.x,
-			y = O.y;
+					ctx.beginPath();
+					for (i = 0; i <= cols; i++, x += row) {
+						ctx.moveTo(x, 0);
+						ctx.lineTo(x, dh);
 	
-		// Rows
-		{
-			ctx.textAlign = "right";
+						text = months[i];
+						truncate && (text = text.slice(0, truncate));
+						ctx.fillText(text, x, dh + 5);
+					}
+					ctx.stroke();
+				}
+			} else {
+				// Year scope
+				var x = 0, months;
+
+				const years = keys;
+
+				ctx.beginPath();
+				for (i = 0; i < years.length; i++) {
+					months = Object.keys(data[keys[i]]);
+
+					months[0] === "Janvier" && ctx.fillText(years[i], x, dh + 20);
+
+					for (j = 0; j < months.length; j++, x += row) {
+						ctx.moveTo(x, 0);
+						ctx.lineTo(x, dh);
+
+						text = months[j];
+						truncate && (text = text.slice(0, truncate));
+						ctx.fillText(text, x, dh + 5);
+					}
+				}
+				ctx.stroke();
+			}
+
+			return row;
+		},
+		drawLegend: function(ctx, legend, entries, colors, percents) {
+			const
+				O = legend.origin,
+				rw = 50,
+				rh = 20;
+			var y, i, entry;
+			y = i = 0;
+
+			ctx.font = "lighter 14px sans-serif";
+			ctx.textAlign = "left";
 			ctx.textBaseline = "middle";
-	
-			ctx.beginPath();
-			for (; i <= r; i++, y += ih) {
-				ctx.moveTo(x, y);
-				ctx.lineTo(x + w, y);
-				r - i && ctx.fillText(r - i, x - 5, y + 2);
-			}
-			ctx.stroke();
-		}
-	
-		// Columns
-		{
-			i = 0;
-			y = O.y;
-	
-			ctx.textAlign = "center";
-			ctx.textBaseline = "top";
-	
-			ctx.beginPath();
-			for (; i <= c; i++, x += iw) {
-				ctx.moveTo(x, y);
-				ctx.lineTo(x, y + h);
-	
-				ctx.fillText(cols[i], x, y + h + 5);
-			}
-			ctx.stroke();
-		}
-	
-		return {iw: iw, ih: ih};
-	},
-	drawSemiGrid: function(ctx, diagram, rows, cols, max) {
-		const
-			O = diagram.origin,
-			w = diagram.width,
-			h = diagram.height,
-			iw = w / (cols - 1),
-			ih = h / (rows - 1);
-		var i = 0,
-			x = O.x,
-			y = O.y;
-	
-		ctx.textAlign = "center";
-		ctx.textBaseline = "bottom";
-	
-		// Rows
-		{
-			ctx.beginPath();
-			for (; i < rows; i++, y += ih) {
-				ctx.moveTo(x, y);
-				ctx.lineTo(x + w, y);
-			}
-			ctx.stroke();
-		}
-	
-		// Columns
-		{
-			i = 0;
-			y = O.y;
-	
-			ctx.beginPath();
-			for (; i < cols; i++, x += iw) {
-				ctx.moveTo(x, y);
-				ctx.lineTo(x, y + h);
-				ctx.fillText(i / w * 100 * max, x, y - 2);
-			}
-			ctx.stroke();
-		}
-	},
-	drawLegend: function(ctx, legend, entries, colors, percents) {
-		var x = legend.origin.x,
-			y = legend.origin.y,
-			i = 0,
-			entry;
-	
-		ctx.font = "16px sans-serif";
-		ctx.textAlign = "left";
-		ctx.textBaseline = "middle";
-	
-		for (; i < entries.length; i++) {
-			// Draw a filled color rectangle
-			ctx.fillStyle = colors[i];
-			ctx.fillRect(x, y, 50, 20);
-	
-			// Describe the entry
-			entry = entries[i];
-			legend.percentages && (entry += " (" + percents[entries[i]] * 100 + "%)");
-	
-			ctx.fillStyle = "#000";
-			ctx.fillText(entry, x + 60, y + 13);
-	
-			y += 30;
-		}
-	},
-};
 
-// Polyfills for JS 1.7
-/**
- * Array.prototype.includes implementation.
- * 
- * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/includes}
- * @param	{mixed}		needle	The item to search
- * @returns	{boolean}
- */
-Array.prototype.includes = function(needle) {
-	const length = this.length;
+			ctx.translate(O.x, O.y);
 
-	for (var i = 0; i < length; i++) {
-		if (this[i] === needle) return true;
-	}
+			for (; i < entries.length; i++, y += rh + 10) {
+				ctx.fillStyle = colors[i];
+				ctx.fillRect(0, y, rw, rh);
 
-	return false;
-};
+				entry = entries[i];
+				legend.percentages && (entry += " (" + Math.floor(percents[entries[i]] * 1000) / 10 + "%)");
+
+				ctx.fillStyle = "#000";
+				ctx.fillText(entry, rw + 7, y + rh / 2 + TEXT_OFFSET_Y);
+			}
+		},
+	};
 
 /**
  * Array.prototype.map implementation.
  * 
  * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/map}
- * @param	{function}	callback	The modifier called for each item of the array
+ * @param	{function}	callback	The modifier called for each item
  * @returns	{array}
  */
 Array.prototype.map = function(callback) {
-	const length = this.length, mapped = [];
+	const mapped = [], length = this.length;
+	var i = 0;
 
-	for (var i = 0; i < length; i++) {
+	for (; i < length; i++) {
 		mapped[i] = callback(this[i], i, this);
 	}
 
@@ -418,19 +474,20 @@ Array.prototype.map = function(callback) {
 };
 
 /**
- * Array.prototype.shuffle implementation.
+ * Array.prototype.sum implementation.
  * 
- * @returns	{array}
+ * @returns	{number}
  */
-Array.prototype.shuffle = function() {
-	const shuffled = [];
-	var length = this.length;
+Array.prototype.sum = function() {
+	const length = this.length;
+	var sum, i;
+	sum = i = 0;
 
-	while (length) {
-		shuffled.push(this.splice(Math.random() * length--, 1)[0]);
+	for (; i < length; i++) {
+		sum += this[i];
 	}
 
-	return shuffled;
+	return sum;
 };
 
 /**
@@ -441,11 +498,12 @@ Array.prototype.shuffle = function() {
  * @returns	{array}
  */
 Object.values = function(object) {
-	const values = [];
+	const result = [];
+	var i;
 
-	for (var i in object) {
-		values.push(object[i]);
+	for (i in object) {
+		result.push(object[i]);
 	}
 
-	return values;
+	return result;
 };
