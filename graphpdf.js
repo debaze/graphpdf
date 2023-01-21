@@ -1,3 +1,9 @@
+/**
+ * GraphPDF for JavaScript 1.7
+ * 
+ * @author matteokeole
+ */
+
 function Diagram(options) {
 	const
 		canvas = document.createElement("canvas"),
