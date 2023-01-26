@@ -1,7 +1,7 @@
 /**
  * GraphPDF for JavaScript 1.7
  * 
- * @author matteokeole
+ * @author matteokeole <matteo@keole.net>
  */
 
 function Diagram(options) {
@@ -9,32 +9,32 @@ function Diagram(options) {
 		canvas = document.createElement("canvas"),
 		ctx = canvas.getContext("2d");
 
-	canvas.width				= PDF_WIDTH;
-	canvas.style.marginTop		= options.margin.top + "px";
-	canvas.style.marginBottom	= options.margin.bottom + "px";
+	canvas.width = PDF_WIDTH;
+	canvas.style.marginTop = options.margin.top + "px";
+	canvas.style.marginBottom = options.margin.bottom + "px";
 
 	// Default context settings
 	ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
-	ctx.lineWidth	= .5;
-	ctx.font		= "lighter 14px sans-serif";
+	ctx.lineWidth = .5;
+	ctx.font = "lighter 14px sans-serif";
 	ctx.translate(25, 25);
 
-	this.data		= options.data;
-	this.entries	= Object.keys(this.data);
-	this.diagram	= options.diagram;
-	this.legend		= options.legend;
-	this.colors		= options.colors.concat(COLORS);
-	this.canvas		= canvas;
-	this.ctx		= ctx;
+	this.data = options.data;
+	this.entries = Object.keys(this.data);
+	this.diagram = options.diagram;
+	this.legend = options.legend;
+	this.colors = options.colors.concat(COLORS);
+	this.canvas = canvas;
+	this.ctx = ctx;
 }
 
 function PieChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx		= this.ctx,
-		data	= this.data,
-		rad		= this.diagram.rad;
+		ctx = this.ctx,
+		data = this.data,
+		rad = this.diagram.rad;
 	var i, j, A;
 	j = A = 0;
 
@@ -49,7 +49,7 @@ function PieChart() {
 
 		for (i in data) {
 			if (data[i]) {
-				A += data[i] * 360 * Math.PI / 180;
+				A += data[i] * Math.PI * 2;
 
 				ctx.fillStyle = this.colors[j];
 				ctx.beginPath();
@@ -240,13 +240,12 @@ function LineChart() {
 	}
 }
 
-// Global color list
 const
-	PDF_WIDTH		= 880,
-	AUTO_ROWS		= 6,
-	AUTO_COLUMNS	= 6,
-	BORDER_OFFSET	= 25,
-	TEXT_OFFSET_Y	= 2,
+	PDF_WIDTH = 880,
+	AUTO_ROWS = 6,
+	AUTO_COLUMNS = 6,
+	BORDER_OFFSET = 25,
+	TEXT_OFFSET_Y = 2,
 	COLORS = [
 		"#2979ff",
 		"#ff8a65",
@@ -297,21 +296,21 @@ const
 		},
 		drawGrid: function(ctx, diagram, max) {
 			const
-				dw		= diagram.width,
-				dh		= diagram.height,
-				grid	= diagram.grid,
-				rows	= grid.rows + 1,
-				cols	= grid.cols + 1,
-				row		= dw / (cols - 1),
-				col		= dh / (rows - 1),
-				step	= cols - 1;
+				dw = diagram.width,
+				dh = diagram.height,
+				grid = diagram.grid,
+				rows = grid.rows + 1,
+				cols = grid.cols + 1,
+				row = dw / (cols - 1),
+				col = dh / (rows - 1),
+				step = cols - 1;
 			var i;
 
 			ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
-			ctx.lineWidth		= .5;
-			ctx.font			= "lighter 12px sans-serif";
-			ctx.textAlign		= "center";
-			ctx.textBaseline	= "top";
+			ctx.lineWidth = .5;
+			ctx.font = "lighter 12px sans-serif";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "top";
 
 			// Rows
 			if (rows > 1) {
@@ -341,24 +340,24 @@ const
 		},
 		drawLCGrid: function(ctx, diagram, max, data) {
 			const
-				dw			= diagram.width,
-				dh			= diagram.height,
-				grid		= diagram.grid,
-				truncate	= grid.truncate,
-				rows		= grid.rows,
-				cols		= grid.cols,
-				row			= dw / cols,
-				col			= dh / rows;
+				dw = diagram.width,
+				dh = diagram.height,
+				grid = diagram.grid,
+				truncate = grid.truncate,
+				rows = grid.rows,
+				cols = grid.cols,
+				row = dw / cols,
+				col = dh / rows;
 			var i, j, text;
 
 			var values = Object.values(data);
 			var keys = Object.keys(data);
 
 			ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
-			ctx.lineWidth		= .5;
-			ctx.font			= "lighter 12px sans-serif";
-			ctx.textAlign		= "right";
-			ctx.textBaseline	= "middle";
+			ctx.lineWidth = .5;
+			ctx.font = "lighter 12px sans-serif";
+			ctx.textAlign = "right";
+			ctx.textBaseline = "middle";
 
 			// Rows
 			if (rows) {
@@ -374,8 +373,8 @@ const
 				ctx.stroke();
 			}
 
-			ctx.textAlign		= "center";
-			ctx.textBaseline	= "top";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "top";
 
 			// Columns
 			if (keys.length === 1) {
@@ -459,54 +458,48 @@ const
 	};
 
 /**
- * Array.prototype.map implementation.
+ * Array.prototype.map polyfill.
  * 
- * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/map}
- * @param	{function}	callback	The modifier called for each item
- * @returns	{array}
+ * @see {@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/map}
+ * @param {function} callback The modifier called for each item
+ * @returns {array}
  */
 Array.prototype.map = function(callback) {
 	const mapped = [], length = this.length;
 	var i = 0;
 
-	for (; i < length; i++) {
-		mapped[i] = callback(this[i], i, this);
-	}
+	for (; i < length; i++) mapped[i] = callback(this[i], i, this);
 
 	return mapped;
 };
 
 /**
- * Array.prototype.sum implementation.
+ * Array.prototype.sum polyfill.
  * 
- * @returns	{number}
+ * @returns {number}
  */
 Array.prototype.sum = function() {
 	const length = this.length;
 	var sum, i;
 	sum = i = 0;
 
-	for (; i < length; i++) {
-		sum += this[i];
-	}
+	for (; i < length; i++) sum += this[i];
 
 	return sum;
 };
 
 /**
- * Object.values implementation.
+ * Object.values polyfill.
  * 
- * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/values}
- * @param	{object}	object	The object to extract values from
- * @returns	{array}
+ * @see {@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/values}
+ * @param {object} object The object to extract values from
+ * @returns {array}
  */
 Object.values = function(object) {
 	const result = [];
 	var i;
 
-	for (i in object) {
-		result.push(object[i]);
-	}
+	for (i in object) result.push(object[i]);
 
 	return result;
 };
