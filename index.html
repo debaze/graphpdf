@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="graphpdf.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        const pieChart = new PieChart({
+            data: {
+                test2: 238734,
+                test: .6,
+            },
+            margin: {
+                top: 10,
+                bottom: 0,
+            },
+            diagram: {
+                x: 0,
+                rad: 150,
+            },
+            legend: {
+                visible: true,
+                origin: {
+                    x: 320,
+                    y: 0,
+                },
+                percentages: true,
+            },
+            colors: [],
+        });
+
+        document.body.appendChild(pieChart.canvas);
+    </script>
+</body>
+</html>

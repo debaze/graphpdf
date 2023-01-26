@@ -26,9 +26,6 @@ function Diagram(options) {
 	this.colors		= options.colors.concat(COLORS);
 	this.canvas		= canvas;
 	this.ctx		= ctx;
-
-	// Append the canvas to the last element
-	document.body.lastElementChild.appendChild(canvas);
 }
 
 function PieChart() {
