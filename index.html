@@ -22,10 +22,6 @@
 					"Rice": 0.025,
 					"Vegetables": 0.105,
 				},
-				margin: {
-					top: 0,
-					bottom: 0,
-				},
 				diagram: {
 					rad: 150,
 				},
@@ -43,8 +39,8 @@
 				],
 			}); */
 
-			/* const chart = new BarChart({
-				data: {
+			const chart = new BarChart({
+				/* data: {
 					"Python": 30,
 					"JavaScript": 18.5,
 					"Go": 17.9,
@@ -55,21 +51,65 @@
 					"C++": 8.6,
 					"SQL": 8.2,
 					"C#": 7.3,
+				}, */
+				data: {
+					"Avatar": {
+						"Revenue (USD million)": 2788,
+						"Budget (USD million)": 237,
+					},
+					"Star Wars: The Force Awakens": {
+						"Revenue (USD million)": 2068,
+						"Budget (USD million)": 245,
+					},
+					"Titanic": {
+						"Revenue (USD million)": 1845,
+						"Budget (USD million)": 200,
+					},
+					"The Avengers": {
+						"Revenue (USD million)": 1520,
+						"Budget (USD million)": 220,
+					},
+					"Jurassic World": {
+						"Revenue (USD million)": 1514,
+						"Budget (USD million)": 150,
+					},
+					"Furious 7": {
+						"Revenue (USD million)": 1506,
+						"Budget (USD million)": 190,
+					},
+					"Avengers: Age of Ultron": {
+						"Revenue (USD million)": 1405,
+						"Budget (USD million)": 280,
+					},
+					"Harry Potter and the Deathly Hallows: Part 2": {
+						"Revenue (USD million)": 1342,
+						"Budget (USD million)": 125,
+					},
+					"Frozen": {
+						"Revenue (USD million)": 1274,
+						"Budget (USD million)": 150,
+					},
+					"Beauty and the Beast": {
+						"Revenue (USD million)": 1263,
+						"Budget (USD million)": 160,
+					},
 				},
-				margin: {},
 				diagram: {
-					x: 10,
+					x: 290,
 					grid: {
-						rows: 1,
+						rows: 10,
 						cols: 6,
 					},
 					indicators: true,
 				},
 				legend: {
-					visible: true,
+					visible: false,
 				},
-				colors: [],
-			}); */
+				colors: [
+					"#32628d",
+					"#cde01d",
+				],
+			});
 
 			/* const chart = new LineChart({
 				data: {
@@ -126,7 +166,6 @@
 						},
 					},
 				},
-				margin: {},
 				diagram: {
 					x: 50,
 					grid: {

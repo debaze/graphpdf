@@ -37,6 +37,14 @@ document.body.appendChild(diagram.canvas);
 
 
 
+## Generic options
+
+`diagram.id: ?String` – n
+
+
+
+
+
 ## Diagrams
 
 

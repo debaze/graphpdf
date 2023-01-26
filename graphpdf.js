@@ -10,8 +10,6 @@ function Diagram(options) {
 		ctx = canvas.getContext("2d");
 
 	canvas.width = PDF_WIDTH;
-	canvas.style.marginTop = options.margin.top + "px";
-	canvas.style.marginBottom = options.margin.bottom + "px";
 
 	// Default context settings
 	ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
@@ -26,6 +24,8 @@ function Diagram(options) {
 	this.colors = options.colors.concat(COLORS);
 	this.canvas = canvas;
 	this.ctx = ctx;
+
+	this.diagram.id && (canvas.id = this.diagram.id);
 }
 
 function PieChart() {
