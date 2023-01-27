@@ -39,7 +39,32 @@ document.body.appendChild(diagram.canvas);
 
 ## Generic options
 
-`diagram.id: ?String` – n
+These options apply to all types of graphs.
+
+`diagram.id: ?String` – Optional DOM identifier which will be assigned to the graph canvas. Defaults to `null`.
+
+`legend.visible: Boolean` – Determines the visibility of the legend. No default.
+`legend.origin.x: Number` – Determines the visibility of the legend. No default. Defaults to 0.
+`legend.origin.y: Number` – Determines the visibility of the legend. No default. Defaults to 0.
+
+`colors: Array` – See Colors section below. No default.
+
+
+
+
+
+## Colors
+
+The library has a default list of 18 Material colors. To use custom colors instead, use the `colors` option:
+```js
+// ...
+colors: [
+	"#ff9800",
+	"#de1818",
+],
+// ...
+```
+This will replace the first 2 default colors with these custom ones **for the current graph.**
 
 
 
@@ -71,7 +96,7 @@ Note 2: The pie sections are drawed in the same order as the data object, so if 
 
 #### Options
 
-`diagram.rad: Number` – Pie radius. No defaults, but 150 is a great radius for a PDF template. If the legend is shown, make sure to shift it to the right to not override the pie.
+`diagram.rad: Number` – Pie radius. No default, but 150 is a great radius for a PDF template. If the legend is shown, make sure to shift it to the right to not override the pie.
 
 `legend.percentages: ?Boolean` – If `true`, displays row percentages in the legend. Defaults to `null`.
 
@@ -154,9 +179,28 @@ Note: each entry must have the same sub-entry names.
 
 https://github.com/keole/sf_oxygene_repit/blob/ff5b4b4906c64f5b65a20584afcec58d73eab884/templates/back/report/diagram.html.twig
 
-> @todo: margin doc  
-@todo: diagram doc  
+***
+
+### `Chart`
+
+#### Data structure
+
+```json
+{
+	//
+}
+```
+
+Notes
+
+#### Options
+
+***
+
+> @todo: diagram doc  
 @todo: legend doc  
 @todo: material color doc  
 @todo: make notes as gh issues
-@todo: minified variant
+@todo: minified variant  
+@todo: PieChart default radius = 150  
+@todo: Legend default visibility = true
