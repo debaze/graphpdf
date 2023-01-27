@@ -20,8 +20,12 @@ function Diagram(options) {
 	this.data = options.data;
 	this.entries = Object.keys(this.data);
 	this.diagram = options.diagram;
-	this.legend = options.legend;
-	this.colors = options.colors.concat(COLORS);
+	this.legend = options.legend ? {
+		x: options.legend.x ? options.legend.x : 0,
+		y: options.legend.y ? options.legend.y : 0,
+		percentages: options.legend.percentages,
+	} : false;
+	this.colors = (options.colors ? options.colors : []).concat(COLORS);
 	this.canvas = canvas;
 	this.ctx = ctx;
 
@@ -34,6 +38,7 @@ function PieChart() {
 	const
 		ctx = this.ctx,
 		data = this.data,
+		legend = this.legend,
 		rad = this.diagram.rad;
 	var i, j, A;
 	j = A = 0;
@@ -66,19 +71,24 @@ function PieChart() {
 	}
 
 	// Optional legend
-	this.legend.visible && Utils.drawLegend(ctx, this.legend, this.entries, this.colors, data);
+	if (legend) {
+		legend.x += rad * 2 + 20;
+
+		Utils.drawLegend(ctx, legend, this.entries, this.colors, data);
+	}
 };
 
 function BarChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx		= this.ctx,
-		data	= this.data,
-		entries	= this.entries,
-		diagram	= this.diagram,
-		grid	= diagram.grid,
-		max		= Utils.getNearest10(data);
+		ctx = this.ctx,
+		data = this.data,
+		entries = this.entries,
+		diagram = this.diagram,
+		legend = this.legend,
+		grid = diagram.grid,
+		max = Utils.getNearest10(data);
 	var i = 0, j, k, y = 0, dw, dh, lh = 20, entry = Object.values(data)[0];
 
 	if (typeof entry === "object") {
@@ -150,13 +160,10 @@ function BarChart() {
 	}
 
 	// Optional legend
-	if (this.legend.visible) {
-		this.legend.origin = {
-			x: dw + 10,
-			y: 0,
-		};
+	if (legend) {
+		legend.x += dw + 10;
 
-		Utils.drawLegend(ctx, this.legend, entry.length > 1 ? entry : entries, this.colors);
+		Utils.drawLegend(ctx, legend, entry.length > 1 ? entry : entries, this.colors);
 	}
 }
 
@@ -164,15 +171,15 @@ function LineChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx		= this.ctx,
-		data	= this.data,
-		entries	= this.entries,
-		diagram	= this.diagram,
-		grid	= diagram.grid,
-		legend	= this.legend,
-		O		= [diagram.x, 25],
-		max		= Utils.getNearest10(data),
-		lines	= {};
+		ctx = this.ctx,
+		data = this.data,
+		entries = this.entries,
+		diagram = this.diagram,
+		grid = diagram.grid,
+		legend = this.legend,
+		O = [diagram.x, 25],
+		max = Utils.getNearest10(data),
+		lines = {};
 		var i, j, k, x, y, dw, dh, row;
 
 	grid.rows === "auto" && (grid.rows = AUTO_ROWS);
@@ -230,11 +237,8 @@ function LineChart() {
 	}
 
 	// Optional legend
-	if (legend.visible) {
-		legend.origin = {
-			x: dw + 10,
-			y: 0,
-		};
+	if (legend) {
+		legend.x += dw + 10;
 
 		Utils.drawLegend(ctx, legend, Object.keys(lines), this.colors);
 	}
@@ -432,7 +436,8 @@ const
 		},
 		drawLegend: function(ctx, legend, entries, colors, percents) {
 			const
-				O = legend.origin,
+				ox = legend.x,
+				oy = legend.y,
 				rw = 50,
 				rh = 20;
 			var y, i, entry;
@@ -442,7 +447,7 @@ const
 			ctx.textAlign = "left";
 			ctx.textBaseline = "middle";
 
-			ctx.translate(O.x, O.y);
+			ctx.translate(ox, oy);
 
 			for (; i < entries.length; i++, y += rh + 10) {
 				ctx.fillStyle = colors[i];

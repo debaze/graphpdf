@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="style.css">
+		<script src="../graphpdf.js"></script>
+		<title>Double bar chart example</title>
+	</head>
+
+	<body>
+		<h1>Top 10 movies by revenue</h1>
+
+		<script>
+			const chart = new BarChart({
+				data: {
+					"Avatar": {
+						"Revenue (USD million)": 2788,
+						"Budget (USD million)": 237,
+					},
+					"Star Wars: The Force Awakens": {
+						"Revenue (USD million)": 2068,
+						"Budget (USD million)": 245,
+					},
+					"Titanic": {
+						"Revenue (USD million)": 1845,
+						"Budget (USD million)": 200,
+					},
+					"The Avengers": {
+						"Revenue (USD million)": 1520,
+						"Budget (USD million)": 220,
+					},
+					"Jurassic World": {
+						"Revenue (USD million)": 1514,
+						"Budget (USD million)": 150,
+					},
+					"Furious 7": {
+						"Revenue (USD million)": 1506,
+						"Budget (USD million)": 190,
+					},
+					"Avengers: Age of Ultron": {
+						"Revenue (USD million)": 1405,
+						"Budget (USD million)": 280,
+					},
+					"Harry Potter and the Deathly Hallows: Part 2": {
+						"Revenue (USD million)": 1342,
+						"Budget (USD million)": 125,
+					},
+					"Frozen": {
+						"Revenue (USD million)": 1274,
+						"Budget (USD million)": 150,
+					},
+					"Beauty and the Beast": {
+						"Revenue (USD million)": 1263,
+						"Budget (USD million)": 160,
+					},
+				},
+				diagram: {
+					x: 5,
+					grid: {
+						rows: 10,
+						cols: 6,
+					},
+					indicators: true,
+				},
+				legend: {
+					x: 32,
+				},
+				colors: [
+					"#32628d",
+					"#cde01d",
+				],
+			});
+
+			document.body.appendChild(chart.canvas);
+		</script>
+	</body>
+</html>

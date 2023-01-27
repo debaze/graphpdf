@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="style.css">
+		<script src="../graphpdf.js"></script>
+		<title>Line chart example</title>
+	</head>
+
+	<body>
+		<h1>Changing rates of crime in the inner city from 2003-2012 (IELTS)</h1>
+
+		<script>
+			const chart = new LineChart({
+				data: {
+					"data": {
+						"2003": {
+							"Burglary": 3400,
+							"Car theft": 2800,
+							"Robbery (theft from the person)": 600,
+						},
+						"2004": {
+							"Burglary": 3800,
+							"Car theft": 2850,
+							"Robbery (theft from the person)": 800,
+						},
+						"2005": {
+							"Burglary": 3100,
+							"Car theft": 2750,
+							"Robbery (theft from the person)": 900,
+						},
+						"2006": {
+							"Burglary": 2600,
+							"Car theft": 2050,
+							"Robbery (theft from the person)": 700,
+						},
+						"2007": {
+							"Burglary": 1600,
+							"Car theft": 2250,
+							"Robbery (theft from the person)": 600,
+						},
+						"2008": {
+							"Burglary": 1200,
+							"Car theft": 2100,
+							"Robbery (theft from the person)": 500,
+						},
+						"2009": {
+							"Burglary": 1450,
+							"Car theft": 2250,
+							"Robbery (theft from the person)": 600,
+						},
+						"2010": {
+							"Burglary": 1400,
+							"Car theft": 2600,
+							"Robbery (theft from the person)": 750,
+						},
+						"2011": {
+							"Burglary": 1450,
+							"Car theft": 2500,
+							"Robbery (theft from the person)": 600,
+						},
+						"2012": {
+							"Burglary": 1400,
+							"Car theft": 2750,
+							"Robbery (theft from the person)": 750,
+						},
+					},
+				},
+				diagram: {
+					x: 50,
+					grid: {
+						rows: 5,
+						cols: "auto",
+					},
+				},
+				legend: true,
+				colors: [
+					"#4f81bd",
+					"#c0504d",
+					"#9bbb59",
+				],
+			});
+
+			document.body.appendChild(chart.canvas);
+		</script>
+	</body>
+</html>
