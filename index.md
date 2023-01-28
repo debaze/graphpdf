@@ -1,6 +1,6 @@
 # GraphPDF
 
-###### *Graphic library for PDF templates. Supports pie, single/multiple bar and line charts.*
+###### *Graphic library for PDF templates and static web pages. Supports pie, single/multiple bar and line charts.*
 
 ## Overview
 
@@ -66,7 +66,7 @@ This will replace the first 2 default colors with these custom ones. You can add
 `COLORS: String[]` – Defaults colors used to render the graph and its legend. Colors are specified as hex strings, `#` included. *Defaults to an array of 18 Material Design colors.*
 
 ### `PieChart`
-A camembert-shaped diagram. [Demo](https://github.com/matteokeole/graphpdf/blob/master/examples/piechart.html)
+A camembert-shaped diagram. [Demo](https://matteokeole.github.io/graphpdf/examples/piechart.html)
 
 #### Data structure
 ```json
@@ -91,7 +91,7 @@ A camembert-shaped diagram. [Demo](https://github.com/matteokeole/graphpdf/blob/
 
 ### `BarChart`
 
-Bar charts can map each data row to either a single bar ([demo](https://github.com/matteokeole/graphpdf/blob/master/examples/barchart.html)) or multiple bars ([demo](https://github.com/matteokeole/graphpdf/blob/master/examples/barchart2.html)).
+Bar charts can map each data row to either a single bar ([demo](https://matteokeole.github.io/graphpdf/examples/barchart.html)) or multiple bars ([demo](https://matteokeole.github.io/graphpdf/examples/barchart2.html)).
 
 #### Data structure (single)
 
@@ -144,7 +144,7 @@ Multiple bar charts can be made by wrapping the data of a row in an object with 
 
 ### `LineChart`
 
-A diagram that uses a serie of points to display data. [Demo](https://github.com/matteokeole/graphpdf/blob/master/examples/linechart.html)
+A diagram that uses a serie of points to display data. [Demo](https://matteokeole.github.io/graphpdf/examples/linechart.html)
 
 #### Data structure
 
