@@ -1,14 +1,11 @@
 # GraphPDF
 
-###### *Graphic library for PDF templates and static web pages. Supports pie, single/multiple bar and line charts.*
+###### *Graphic library for PDF templates and static web pages. Supports pie charts, single/multiple bar charts and line charts.*
 
 ## Overview
 
 The library is made for JavaScript 1.7 because this is the most recent version supported by the PDF on which I worked.  
-Make sure to include the [`graphpdf.js`](https://github.com/matteokeole/graphpdf/blob/master/graphpdf.js) file before the scripts that depend on it.  
-
-> @todo: Replace this file by the minified variant
-
+Make sure to include the [`graphpdf.min.js`](https://github.com/matteokeole/graphpdf/blob/master/graphpdf.min.js) file before the scripts that depend on it.  
 You can create a graph by instanciating a `Diagram` subclass. After its creation, the graph will be rendered on a canvas element, which can then be added to the page.
 
 ```js
