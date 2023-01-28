@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="style.css">
+		<script src="../graphpdf.js"></script>
+		<title>Pie chart example</title>
+	</head>
+
+	<body>
+		<h1>2014 world food consumption</h1>
+
+		<script>
+			const chart = new PieChart({
+				data: {
+					"Bread": 0.055,
+					"Cereals": 0.117,
+					"Fish": 0.279,
+					"Fruits": 0.106,
+					"Meat": 0.314,
+					"Rice": 0.025,
+					"Vegetables": 0.105,
+				},
+				diagram: {
+					rad: 150,
+				},
+				legend: {
+					percentages: true,
+				},
+				colors: [
+					"#db3b14",
+					"#3367cc",
+					"#fa9803",
+					"#169a1c",
+					"#980099",
+					"#009cc8",
+					"#df477a",
+				],
+			});
+
+			document.body.appendChild(chart.canvas);
+		</script>
+	</body>
+</html>

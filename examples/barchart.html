@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="stylesheet" href="style.css">
+		<script src="../graphpdf.js"></script>
+		<title>Single bar chart example</title>
+	</head>
+
+	<body>
+		<h1>Most wanted programming languages</h1>
+
+		<p>
+			Data from this
+			<a href="https://insights.stackoverflow.com/survey/2020#technology-most-loved-dreaded-and-wanted-languages" target="_blank">Stack Overflow survey</a>
+		</p>
+
+		<script>
+			const chart = new BarChart({
+				data: {
+					"Python": 30,
+					"JavaScript": 18.5,
+					"Go": 17.9,
+					"TypeScript": 17,
+					"Rust": 14.6,
+					"Kotlin": 12.6,
+					"Java": 8.8,
+					"C++": 8.6,
+					"SQL": 8.2,
+					"C#": 7.3,
+				},
+				diagram: {
+					grid: {
+						rows: 1,
+						cols: 6,
+					},
+					indicators: true,
+				},
+				legend: {
+					x: 16,
+				},
+			});
+
+			document.body.appendChild(chart.canvas);
+		</script>
+	</body>
+</html>

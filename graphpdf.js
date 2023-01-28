@@ -1,7 +1,7 @@
 /**
  * GraphPDF for JavaScript 1.7
  * 
- * @author matteokeole
+ * @author matteokeole <matteo@keole.net>
  */
 
 function Diagram(options) {
@@ -9,35 +9,37 @@ function Diagram(options) {
 		canvas = document.createElement("canvas"),
 		ctx = canvas.getContext("2d");
 
-	canvas.width				= PDF_WIDTH;
-	canvas.style.marginTop		= options.margin.top + "px";
-	canvas.style.marginBottom	= options.margin.bottom + "px";
+	canvas.width = PDF_WIDTH;
 
 	// Default context settings
 	ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
-	ctx.lineWidth	= .5;
-	ctx.font		= "lighter 14px sans-serif";
+	ctx.lineWidth = .5;
+	ctx.font = "lighter 14px sans-serif";
 	ctx.translate(25, 25);
 
-	this.data		= options.data;
-	this.entries	= Object.keys(this.data);
-	this.diagram	= options.diagram;
-	this.legend		= options.legend;
-	this.colors		= options.colors.concat(COLORS);
-	this.canvas		= canvas;
-	this.ctx		= ctx;
+	this.data = options.data;
+	this.entries = Object.keys(this.data);
+	this.diagram = options.diagram;
+	this.legend = options.legend ? {
+		x: options.legend.x ? options.legend.x : 0,
+		y: options.legend.y ? options.legend.y : 0,
+		percentages: options.legend.percentages,
+	} : false;
+	this.colors = (options.colors ? options.colors : []).concat(COLORS);
+	this.canvas = canvas;
+	this.ctx = ctx;
 
-	// Append the canvas to the last element
-	document.body.lastElementChild.appendChild(canvas);
+	this.diagram.id && (canvas.id = this.diagram.id);
 }
 
 function PieChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx		= this.ctx,
-		data	= this.data,
-		rad		= this.diagram.rad;
+		ctx = this.ctx,
+		data = this.data,
+		legend = this.legend,
+		rad = this.diagram.rad;
 	var i, j, A;
 	j = A = 0;
 
@@ -52,7 +54,7 @@ function PieChart() {
 
 		for (i in data) {
 			if (data[i]) {
-				A += data[i] * 360 * Math.PI / 180;
+				A += data[i] * Math.PI * 2;
 
 				ctx.fillStyle = this.colors[j];
 				ctx.beginPath();
@@ -69,19 +71,24 @@ function PieChart() {
 	}
 
 	// Optional legend
-	this.legend.visible && Utils.drawLegend(ctx, this.legend, this.entries, this.colors, data);
+	if (legend) {
+		legend.x += rad * 2 + 20;
+
+		Utils.drawLegend(ctx, legend, this.entries, this.colors, data);
+	}
 };
 
 function BarChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx		= this.ctx,
-		data	= this.data,
-		entries	= this.entries,
-		diagram	= this.diagram,
-		grid	= diagram.grid,
-		max		= Utils.getNearest10(data);
+		ctx = this.ctx,
+		data = this.data,
+		entries = this.entries,
+		diagram = this.diagram,
+		legend = this.legend,
+		grid = diagram.grid,
+		max = Utils.getNearest10(data);
 	var i = 0, j, k, y = 0, dw, dh, lh = 20, entry = Object.values(data)[0];
 
 	if (typeof entry === "object") {
@@ -153,13 +160,10 @@ function BarChart() {
 	}
 
 	// Optional legend
-	if (this.legend.visible) {
-		this.legend.origin = {
-			x: dw + 10,
-			y: 0,
-		};
+	if (legend) {
+		legend.x += dw + 10;
 
-		Utils.drawLegend(ctx, this.legend, entry.length > 1 ? entry : entries, this.colors);
+		Utils.drawLegend(ctx, legend, entry.length > 1 ? entry : entries, this.colors);
 	}
 }
 
@@ -167,21 +171,21 @@ function LineChart() {
 	Diagram.call(this, arguments[0]);
 
 	const
-		ctx		= this.ctx,
-		data	= this.data,
-		entries	= this.entries,
-		diagram	= this.diagram,
-		grid	= diagram.grid,
-		legend	= this.legend,
-		O		= [diagram.x, 25],
-		max		= Utils.getNearest10(data),
-		lines	= {};
+		ctx = this.ctx,
+		data = this.data,
+		entries = this.entries,
+		diagram = this.diagram,
+		grid = diagram.grid,
+		legend = this.legend,
+		O = [diagram.x, 25],
+		max = Utils.getNearest10(data),
+		lines = {};
 		var i, j, k, x, y, dw, dh, row;
 
 	grid.rows === "auto" && (grid.rows = AUTO_ROWS);
-	grid.cols === "auto" && (grid.cols = Object.values(data).map(function(entry) {
+	grid.cols = Object.values(data).map(function(entry) {
 		return Object.keys(entry).length;
-	}).sum() - 1);
+	}).sum() - 1;
 
 	dw = PDF_WIDTH * (3 / 5);
 	dh = 250;
@@ -233,23 +237,19 @@ function LineChart() {
 	}
 
 	// Optional legend
-	if (legend.visible) {
-		legend.origin = {
-			x: dw + 10,
-			y: 0,
-		};
+	if (legend) {
+		legend.x += dw + 10;
 
 		Utils.drawLegend(ctx, legend, Object.keys(lines), this.colors);
 	}
 }
 
-// Global color list
 const
-	PDF_WIDTH		= 880,
-	AUTO_ROWS		= 6,
-	AUTO_COLUMNS	= 6,
-	BORDER_OFFSET	= 25,
-	TEXT_OFFSET_Y	= 2,
+	PDF_WIDTH = 880,
+	AUTO_ROWS = 6,
+	AUTO_COLUMNS = 6,
+	BORDER_OFFSET = 25,
+	TEXT_OFFSET_Y = 2,
 	COLORS = [
 		"#2979ff",
 		"#ff8a65",
@@ -300,21 +300,21 @@ const
 		},
 		drawGrid: function(ctx, diagram, max) {
 			const
-				dw		= diagram.width,
-				dh		= diagram.height,
-				grid	= diagram.grid,
-				rows	= grid.rows + 1,
-				cols	= grid.cols + 1,
-				row		= dw / (cols - 1),
-				col		= dh / (rows - 1),
-				step	= cols - 1;
+				dw = diagram.width,
+				dh = diagram.height,
+				grid = diagram.grid,
+				rows = grid.rows + 1,
+				cols = grid.cols + 1,
+				row = dw / (cols - 1),
+				col = dh / (rows - 1),
+				step = cols - 1;
 			var i;
 
 			ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
-			ctx.lineWidth		= .5;
-			ctx.font			= "lighter 12px sans-serif";
-			ctx.textAlign		= "center";
-			ctx.textBaseline	= "top";
+			ctx.lineWidth = .5;
+			ctx.font = "lighter 12px sans-serif";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "top";
 
 			// Rows
 			if (rows > 1) {
@@ -344,24 +344,24 @@ const
 		},
 		drawLCGrid: function(ctx, diagram, max, data) {
 			const
-				dw			= diagram.width,
-				dh			= diagram.height,
-				grid		= diagram.grid,
-				truncate	= grid.truncate,
-				rows		= grid.rows,
-				cols		= grid.cols,
-				row			= dw / cols,
-				col			= dh / rows;
+				dw = diagram.width,
+				dh = diagram.height,
+				grid = diagram.grid,
+				truncate = grid.truncate,
+				rows = grid.rows,
+				cols = grid.cols,
+				row = dw / cols,
+				col = dh / rows;
 			var i, j, text;
 
 			var values = Object.values(data);
 			var keys = Object.keys(data);
 
 			ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
-			ctx.lineWidth		= .5;
-			ctx.font			= "lighter 12px sans-serif";
-			ctx.textAlign		= "right";
-			ctx.textBaseline	= "middle";
+			ctx.lineWidth = .5;
+			ctx.font = "lighter 12px sans-serif";
+			ctx.textAlign = "right";
+			ctx.textBaseline = "middle";
 
 			// Rows
 			if (rows) {
@@ -377,8 +377,8 @@ const
 				ctx.stroke();
 			}
 
-			ctx.textAlign		= "center";
-			ctx.textBaseline	= "top";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "top";
 
 			// Columns
 			if (keys.length === 1) {
@@ -436,7 +436,8 @@ const
 		},
 		drawLegend: function(ctx, legend, entries, colors, percents) {
 			const
-				O = legend.origin,
+				ox = legend.x,
+				oy = legend.y,
 				rw = 50,
 				rh = 20;
 			var y, i, entry;
@@ -446,7 +447,7 @@ const
 			ctx.textAlign = "left";
 			ctx.textBaseline = "middle";
 
-			ctx.translate(O.x, O.y);
+			ctx.translate(ox, oy);
 
 			for (; i < entries.length; i++, y += rh + 10) {
 				ctx.fillStyle = colors[i];
@@ -462,54 +463,48 @@ const
 	};
 
 /**
- * Array.prototype.map implementation.
+ * Array.prototype.map polyfill.
  * 
- * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/map}
- * @param	{function}	callback	The modifier called for each item
- * @returns	{array}
+ * @see {@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Array/map}
+ * @param {function} callback The modifier called for each item
+ * @returns {array}
  */
 Array.prototype.map = function(callback) {
 	const mapped = [], length = this.length;
 	var i = 0;
 
-	for (; i < length; i++) {
-		mapped[i] = callback(this[i], i, this);
-	}
+	for (; i < length; i++) mapped[i] = callback(this[i], i, this);
 
 	return mapped;
 };
 
 /**
- * Array.prototype.sum implementation.
+ * Array.prototype.sum polyfill.
  * 
- * @returns	{number}
+ * @returns {number}
  */
 Array.prototype.sum = function() {
 	const length = this.length;
 	var sum, i;
 	sum = i = 0;
 
-	for (; i < length; i++) {
-		sum += this[i];
-	}
+	for (; i < length; i++) sum += this[i];
 
 	return sum;
 };
 
 /**
- * Object.values implementation.
+ * Object.values polyfill.
  * 
- * @see		{@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/values}
- * @param	{object}	object	The object to extract values from
- * @returns	{array}
+ * @see {@link https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/values}
+ * @param {object} object The object to extract values from
+ * @returns {array}
  */
 Object.values = function(object) {
 	const result = [];
 	var i;
 
-	for (i in object) {
-		result.push(object[i]);
-	}
+	for (i in object) result.push(object[i]);
 
 	return result;
 };
