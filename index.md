@@ -1,14 +1,6 @@
 # GraphPDF
 
-
-
-
-
 ###### *Graphic library for PDF templates. Supports pie, single/multiple bar and line charts.*
-
-
-
-
 
 ## Overview
 
@@ -57,15 +49,21 @@ colors: [
 ```
 This will replace the first 2 default colors with these custom ones. You can add as many colors as you want.
 
+### Constants
 
+> @todo: Add constant modifiers
 
+`PDF_WIDTH: Number` – Width of the canvas generated for a graph (not CSS width). *Defaults to 880.*
 
+`AUTO_ROWS: Number` – Number of rows in a `LineChart` when it is created with the `auto` attribute for the `diagram.grid.rows` option. *Defaults to 6.*
 
-## Diagrams
+`AUTO_COLUMS: Number` – Number of columns in a `BarChart` when it is created with the `auto` attribute for the `diagram.grid.columns` option. *Defaults to 6.*
 
+`BORDER_OFFSET: Number` – Offset between the graph bottom and the canvas bottom border. *Defaults to 25.*
 
+`TEXT_OFFSET_Y: Number` – Canvas text top margin. The value of this constant is not uniform across rendering engines. For example, on Linux 2 looks better centered while on Windows it's 1. *Defaults to 2.*
 
-
+`COLORS: String[]` – Defaults colors used to render the graph and its legend. Colors are specified as hex strings, `#` included. *Defaults to an array of 18 Material Design colors.*
 
 ### `PieChart`
 A camembert-shaped diagram. [Demo](https://github.com/matteokeole/graphpdf/blob/master/examples/piechart.html)
@@ -90,16 +88,6 @@ A camembert-shaped diagram. [Demo](https://github.com/matteokeole/graphpdf/blob/
 `diagram.rad: Number` – Pie radius. *No defaults.*
 
 `legend.percentages: ?Boolean` – If `true`, displays row percentages in the legend. *Defaults to `null`.*
-
-
-
-
-
-***
-
-
-
-
 
 ### `BarChart`
 
@@ -154,16 +142,6 @@ Multiple bar charts can be made by wrapping the data of a row in an object with 
 
 `diagram.indicators: ?Boolean` – If `true`, displays row values at the end of each bar. *Defaults to `null`.*
 
-
-
-
-
-***
-
-
-
-
-
 ### `LineChart`
 
 A diagram that uses a serie of points to display data. [Demo](https://github.com/matteokeole/graphpdf/blob/master/examples/linechart.html)
@@ -199,18 +177,3 @@ Notice the `inner_data` key that must wrap the data.
 `diagram.grid.rows: Number|String` – Number of rows in the chart. If set to `auto`, this will equal the `AUTO_ROWS` constant. *Defaults to 0.*
 
 `diagram.grid.truncate: ?Number` – If given an integer other than 0, truncates the text in the bottom column indicators, but keeps the number of characters (from the left) defined in this variable. Example with the text `November` with a `truncate` of 3: `Nov`. *Defaults to `null`.*
-
-
-
-
-
-***
-
-
-
-
-
-https://github.com/keole/sf_oxygene_repit/blob/ff5b4b4906c64f5b65a20584afcec58d73eab884/templates/back/report/index.html.twig
-
-> @todo: Constant section  
-> @todo: Add minified variant
