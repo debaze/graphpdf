@@ -14,6 +14,8 @@
 		<h1>Top 10 movies by revenue</h1>
 
 		<script>
+			defineGraphPDFConstant("PDF_WIDTH", 1400);
+
 			const chart = new BarChart({
 				data: {
 					"Avatar": {
@@ -58,7 +60,7 @@
 					},
 				},
 				diagram: {
-					x: 5,
+					x: 285,
 					grid: {
 						rows: 10,
 						cols: 6,
