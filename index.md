@@ -51,7 +51,12 @@ This will replace the first 2 default colors with these custom ones. You can add
 
 ### Constants
 
-> @todo: Add constant modifiers
+Constants are internal to GraphPDF. They can be modified for a specific use case with `defineGraphPDFConstant()`:
+
+```js
+// Note: This won't affect previously created graphs.
+defineGraphPDFConstant("TEXT_OFFSET_Y", 1);
+```
 
 `PDF_WIDTH: Number` – Width of the canvas generated for a graph (not CSS width). *Defaults to 880.*
 

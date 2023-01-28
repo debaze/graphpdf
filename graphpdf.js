@@ -9,7 +9,7 @@ function Diagram(options) {
 		canvas = document.createElement("canvas"),
 		ctx = canvas.getContext("2d");
 
-	canvas.width = PDF_WIDTH;
+	canvas.width = Constants.PDF_WIDTH;
 
 	// Default context settings
 	ctx.fillStyle = ctx.strokeStyle = "#9e9e9e";
@@ -25,7 +25,7 @@ function Diagram(options) {
 		y: options.legend.y ? options.legend.y : 0,
 		percentages: options.legend.percentages,
 	} : false;
-	this.colors = (options.colors ? options.colors : []).concat(COLORS);
+	this.colors = (options.colors ? options.colors : []).concat(Constants.COLORS);
 	this.canvas = canvas;
 	this.ctx = ctx;
 
@@ -43,7 +43,7 @@ function PieChart() {
 	var i, j, A;
 	j = A = 0;
 
-	this.canvas.height = (BORDER_OFFSET + rad) * 2;
+	this.canvas.height = (Constants.BORDER_OFFSET + rad) * 2;
 
 	ctx.translate(this.diagram.x, 0);
 
@@ -96,12 +96,12 @@ function BarChart() {
 	} else entry = [entry];
 
 	grid.rows === "auto" && (grid.rows = entries.length + 1);
-	grid.cols === "auto" && (grid.cols = AUTO_COLUMNS);
+	grid.cols === "auto" && (grid.cols = Constants.AUTO_COLUMNS);
 
-	dw = PDF_WIDTH * (3 / 5);
+	dw = Constants.PDF_WIDTH * (3 / 5);
 	dh = entries.length * (entry.length + 1) * lh;
 
-	this.canvas.height = dh + BORDER_OFFSET * 2;
+	this.canvas.height = dh + Constants.BORDER_OFFSET * 2;
 
 	ctx.translate(diagram.x, 0);
 
@@ -122,7 +122,7 @@ function BarChart() {
 			y += lh / 2;
 
 			ctx.fillStyle = "#000";
-			ctx.fillText(i, -10, y + (lh * entry.length / 2) + TEXT_OFFSET_Y);
+			ctx.fillText(i, -10, y + (lh * entry.length / 2) + Constants.TEXT_OFFSET_Y);
 
 			if (typeof data[i] !== "object") {
 				ctx.fillStyle = this.colors[k];
@@ -130,7 +130,7 @@ function BarChart() {
 
 				if (diagram.indicators && data[i]) {
 					ctx.textAlign = "left";
-					ctx.fillText(data[i], data[i] / max * dw + 5, y + (lh / 2) + TEXT_OFFSET_Y);
+					ctx.fillText(data[i], data[i] / max * dw + 5, y + (lh / 2) + Constants.TEXT_OFFSET_Y);
 					ctx.textAlign = "right";
 				}
 
@@ -146,7 +146,7 @@ function BarChart() {
 
 					if (diagram.indicators && data[i][j]) {
 						ctx.textAlign = "left";
-						ctx.fillText(data[i][j], data[i][j] / max * dw + 5, y + (lh / 2) + TEXT_OFFSET_Y);
+						ctx.fillText(data[i][j], data[i][j] / max * dw + 5, y + (lh / 2) + Constants.TEXT_OFFSET_Y);
 						ctx.textAlign = "right";
 					}
 
@@ -182,12 +182,12 @@ function LineChart() {
 		lines = {};
 		var i, j, k, x, y, dw, dh, row;
 
-	grid.rows === "auto" && (grid.rows = AUTO_ROWS);
+	grid.rows === "auto" && (grid.rows = Constants.AUTO_ROWS);
 	grid.cols = Object.values(data).map(function(entry) {
 		return Object.keys(entry).length;
 	}).sum() - 1;
 
-	dw = PDF_WIDTH * (3 / 5);
+	dw = Constants.PDF_WIDTH * (3 / 5);
 	dh = 250;
 	diagram.width = dw;
 	diagram.height = dh;
@@ -245,31 +245,36 @@ function LineChart() {
 }
 
 const
-	PDF_WIDTH = 880,
-	AUTO_ROWS = 6,
-	AUTO_COLUMNS = 6,
-	BORDER_OFFSET = 25,
-	TEXT_OFFSET_Y = 2,
-	COLORS = [
-		"#2979ff",
-		"#ff8a65",
-		"#ffd600",
-		"#8e24aa",
-		"#4caf50",
-		"#e64a19",
-		"#009688",
-		"#1de9b6",
-		"#42a5f5",
-		"#ef9a9a",
-		"#6d4c41",
-		"#ffa000",
-		"#f06292",
-		"#c5cae9",
-		"#aed581",
-		"#9575cd",
-		"#f44336",
-		"#607d8b",
-	],
+	Constants = {
+		PDF_WIDTH: 880,
+		AUTO_ROWS: 6,
+		AUTO_COLUMNS: 6,
+		BORDER_OFFSET: 25,
+		TEXT_OFFSET_Y: 2,
+		COLORS: [
+			"#2979ff",
+			"#ff8a65",
+			"#ffd600",
+			"#8e24aa",
+			"#4caf50",
+			"#e64a19",
+			"#009688",
+			"#1de9b6",
+			"#42a5f5",
+			"#ef9a9a",
+			"#6d4c41",
+			"#ffa000",
+			"#f06292",
+			"#c5cae9",
+			"#aed581",
+			"#9575cd",
+			"#f44336",
+			"#607d8b",
+		],
+	},
+	defineGraphPDFConstant = function(constant, value) {
+		Constants[constant] = value;
+	},
 	Utils = {
 		getNearest10: function(data) {
 			var values, jvalues, kvalues, result, i, j, k;
@@ -457,7 +462,7 @@ const
 				legend.percentages && (entry += " (" + Math.floor(percents[entries[i]] * 1000) / 10 + "%)");
 
 				ctx.fillStyle = "#000";
-				ctx.fillText(entry, rw + 7, y + rh / 2 + TEXT_OFFSET_Y);
+				ctx.fillText(entry, rw + 7, y + rh / 2 + Constants.TEXT_OFFSET_Y);
 			}
 		},
 	};
