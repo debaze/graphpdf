@@ -183,9 +183,9 @@ function LineChart() {
 		var i, j, k, x, y, dw, dh, row;
 
 	grid.rows === "auto" && (grid.rows = AUTO_ROWS);
-	grid.cols === "auto" && (grid.cols = Object.values(data).map(function(entry) {
+	grid.cols = Object.values(data).map(function(entry) {
 		return Object.keys(entry).length;
-	}).sum() - 1);
+	}).sum() - 1;
 
 	dw = PDF_WIDTH * (3 / 5);
 	dh = 250;

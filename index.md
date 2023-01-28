@@ -4,7 +4,7 @@
 
 
 
-###### *Graph library for PDF templates. Supports pie charts, bar charts and line charts.*
+###### *Graphic library for PDF templates. Supports pie, single/multiple bar and line charts.*
 
 
 
@@ -68,7 +68,7 @@ This will replace the first 2 default colors with these custom ones. You can add
 
 
 ### `PieChart`
-A camembert-shaped diagram. [Example](https://github.com/matteokeole/graphpdf/blob/master/examples/piechart.html)
+A camembert-shaped diagram. [Demo](https://github.com/matteokeole/graphpdf/blob/master/examples/piechart.html)
 
 #### Data structure
 ```json
@@ -82,14 +82,14 @@ A camembert-shaped diagram. [Example](https://github.com/matteokeole/graphpdf/bl
 	"Vegetables": 0.105
 }
 ```
-Note 1: A row occupying 0% of the pie is still showed in the legend.  
-Note 2: The pie sections are drawed in the same order as the data object, so if the sum of the rows is greater than 1, the remaining rows won't be drawed (they will still be showed in the legend though).
+**Note 1:** A row occupying 0% of the pie is still showed in the legend.  
+**Note 2:** The pie sections are drawed in the same order as the data object, so if the sum of the rows is greater than 1, the remaining rows won't be drawed (they will still be showed in the legend though).
 
 #### Options
 
-`diagram.rad: Number` – Pie radius. No default, but 150 is a great radius for a PDF template. If the legend is shown, make sure to shift it to the right to not override the pie.
+`diagram.rad: Number` – Pie radius. *No defaults.*
 
-`legend.percentages: ?Boolean` – If `true`, displays row percentages in the legend. Defaults to `null`.
+`legend.percentages: ?Boolean` – If `true`, displays row percentages in the legend. *Defaults to `null`.*
 
 
 
@@ -101,9 +101,9 @@ Note 2: The pie sections are drawed in the same order as the data object, so if 
 
 
 
-### `Bar chart`
+### `BarChart`
 
-Bar charts can map each data row to either a single bar ([example](https://github.com/matteokeole/graphpdf/blob/master/examples/barchart.html)) or multiple bars ([example](https://github.com/matteokeole/graphpdf/blob/master/examples/barchart2.html)).
+Bar charts can map each data row to either a single bar ([demo](https://github.com/matteokeole/graphpdf/blob/master/examples/barchart.html)) or multiple bars ([demo](https://github.com/matteokeole/graphpdf/blob/master/examples/barchart2.html)).
 
 #### Data structure (single)
 
@@ -124,7 +124,7 @@ Bar charts can map each data row to either a single bar ([example](https://githu
 
 #### Data structure (multiple)
 
-Multiple bar charts can be made by wrapping the data of a row in an object with the display name of that row. The legend builder makes a new item when it encounters a new key name, if you want the same data structure per row, make sure each object share the same key names.
+Multiple bar charts can be made by wrapping the data of a row in an object with the display name of that row. The legend builder uses the first row to make legend items. Each row must have the same key count and key names as the other rows.
 
 ```json
 {
@@ -133,7 +133,6 @@ Multiple bar charts can be made by wrapping the data of a row in an object with 
 		"Budget": 237
 	},
 	"Star Wars: The Force Awakens": {
-		"I am your father": true, // This property will only appear on this row and in the legend
 		"Revenue": 2068,
 		"Budget": 245
 	},
@@ -144,15 +143,14 @@ Multiple bar charts can be made by wrapping the data of a row in an object with 
 }
 ```
 
-Note 1: The first column number will be clipped by the canvas left border. You can adjust the diagram X axis to fix that.  
-Note 2: On a chart where the legend is shown and the `diagram.indicators` option is `true`, if a bar has the max possible length, its indicator will be rendered below the legend.
-Note 3: the legend can't be moved.
+**Note 1:** The first column number will be clipped by the canvas left border. You can adjust the diagram X axis to fix that.  
+**Note 2:** On a bar chart where the legend is shown and the `diagram.indicators` option is `true`, the longest bar might have its indicator being rendered below the legend.
 
 #### Options
 
-`diagram.grid.rows: Number` – Number of rows in the chart. *Defaults to 0.*
+`diagram.grid.rows: Number|String` – Number of rows in the chart. If set to `auto`, this will equal the data row count minus 1. *Defaults to 0.*
 
-`diagram.grid.columns: Number` – Number of columns in the chart. *Defaults to 0.*
+`diagram.grid.columns: Number|String` – Number of columns in the chart. If set to `auto`, this will equal the `AUTO_COLUMNS` constant. *Defaults to 0.*
 
 `diagram.indicators: ?Boolean` – If `true`, displays row values at the end of each bar. *Defaults to `null`.*
 
@@ -168,7 +166,7 @@ Note 3: the legend can't be moved.
 
 ### `LineChart`
 
-A diagram that uses a serie of points to display data. [Example](https://github.com/matteokeole/graphpdf/blob/master/examples/linechart.html)
+A diagram that uses a serie of points to display data. [Demo](https://github.com/matteokeole/graphpdf/blob/master/examples/linechart.html)
 
 #### Data structure
 
@@ -194,7 +192,13 @@ A diagram that uses a serie of points to display data. [Example](https://github.
 }
 ```
 
-Note: This structure must have a parent key before being provided to the chart. In this example the key is `inner_data`.
+Notice the `inner_data` key that must wrap the data.
+
+#### Options
+
+`diagram.grid.rows: Number|String` – Number of rows in the chart. If set to `auto`, this will equal the `AUTO_ROWS` constant. *Defaults to 0.*
+
+`diagram.grid.truncate: ?Number` – If given an integer other than 0, truncates the text in the bottom column indicators, but keeps the number of characters (from the left) defined in this variable. Example with the text `November` with a `truncate` of 3: `Nov`. *Defaults to `null`.*
 
 
 
@@ -206,8 +210,7 @@ Note: This structure must have a parent key before being provided to the chart. 
 
 
 
-https://github.com/keole/sf_oxygene_repit/blob/ff5b4b4906c64f5b65a20584afcec58d73eab884/templates/back/report/diagram.html.twig
+https://github.com/keole/sf_oxygene_repit/blob/ff5b4b4906c64f5b65a20584afcec58d73eab884/templates/back/report/index.html.twig
 
-> @todo: Finish BarChart/LineChart  
-> @todo: Issue: constant modifier (e.g. PDF_WIDTH)  
+> @todo: Constant section  
 > @todo: Add minified variant
