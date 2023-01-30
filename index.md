@@ -67,6 +67,8 @@ defineGraphPDFConstant("TEXT_OFFSET_Y", 1);
 
 `COLORS: String[]` – Defaults colors used to render the graph and its legend. Colors are specified as hex strings, `#` included. *Defaults to an array of 18 Material Design colors.*
 
+## Diagrams
+
 ### `PieChart`
 A camembert-shaped diagram. [Demo](https://matteokeole.github.io/graphpdf/examples/piechart.html)
 
