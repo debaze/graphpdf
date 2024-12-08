@@ -1,7 +1,7 @@
 /**
  * GraphPDF for JavaScript 1.7
  * 
- * @author matteokeole <matteo@keole.net>
+ * @author Mattéo Legagneux
  */
 
 function Diagram(options) {
