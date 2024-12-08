@@ -5,7 +5,7 @@
 ## Overview
 
 The library is made for JavaScript 1.7 because this is the most recent version supported by the PDF on which I worked.  
-Make sure to include the [`graphpdf.min.js`](https://github.com/matteokeole/graphpdf/blob/master/graphpdf.min.js) file before the scripts that depend on it.  
+Make sure to include the [`graphpdf.min.js`](https://github.com/debaze/graphpdf/blob/master/graphpdf.min.js) file before the scripts that depend on it.  
 You can create a graph by instanciating a `Diagram` subclass. After its creation, the graph will be rendered on a canvas element, which can then be added to the page.
 
 ```js
@@ -70,7 +70,7 @@ defineGraphPDFConstant("TEXT_OFFSET_Y", 1);
 ## Diagrams
 
 ### `PieChart`
-A camembert-shaped diagram. [Demo](https://matteokeole.github.io/graphpdf/examples/piechart.html)
+A camembert-shaped diagram. [Demo](https://debaze.github.io/graphpdf/examples/piechart.html)
 
 #### Data structure
 ```json
@@ -95,7 +95,7 @@ A camembert-shaped diagram. [Demo](https://matteokeole.github.io/graphpdf/exampl
 
 ### `BarChart`
 
-Bar charts can map each data row to either a single bar ([demo](https://matteokeole.github.io/graphpdf/examples/barchart.html)) or multiple bars ([demo](https://matteokeole.github.io/graphpdf/examples/barchart2.html)).
+Bar charts can map each data row to either a single bar ([demo](https://debaze.github.io/graphpdf/examples/barchart.html)) or multiple bars ([demo](https://matteokeole.github.io/graphpdf/examples/barchart2.html)).
 
 #### Data structure (single)
 
@@ -148,7 +148,7 @@ Multiple bar charts can be made by wrapping the data of a row in an object with 
 
 ### `LineChart`
 
-A diagram that uses a serie of points to display data. [Demo](https://matteokeole.github.io/graphpdf/examples/linechart.html)
+A diagram that uses a serie of points to display data. [Demo](https://debaze.github.io/graphpdf/examples/linechart.html)
 
 #### Data structure
 
